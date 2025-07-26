@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# API Keys and Secrets
+.env
+config/secrets.yaml
+*.key
+
+# Data files (never commit large datasets)
+data/raw/
+data/processed/
+*.csv
+*.parquet
+*.json
+!sample_data/
+
+# Databricks
+.databricks/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
