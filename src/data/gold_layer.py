@@ -83,18 +83,19 @@ if __name__ == "__main__":
     print("\n" + "="*50)
     print("Loading Silver data:")
     combined_data = gold.load_all_silver_data()
-
-
+    
     # Calculate business metrics
     print("\n" + "-"*30)
     print("Calculating business metrics:")
     gold_data = gold.calculate_daily_returns(combined_data)
     print(f"Gold data shape: {gold_data.shape}")
-
-        # Save Gold data
+    
+    # Save Gold data
     print("\n" + "-"*30)
     gold_file = gold.save_gold_data(gold_data)
     
-    # Preview the metrics
-    print("\nSample of Gold data with business metrics:")
-    print(gold_data[['date', 'symbol', 'close', 'daily_return', 'price_change']].head(8))
+    # Clean summary instead of detailed preview
+    print(f"\n✅ Gold layer complete:")
+    print(f"  - {len(gold_data)} total data points")
+    print(f"  - {len(gold_data['symbol'].unique())} stocks: {', '.join(sorted(gold_data['symbol'].unique()))}")
+    print(f"  - Business metrics: daily_return, price_change, volume_ma_3d")

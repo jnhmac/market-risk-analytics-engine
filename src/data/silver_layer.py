@@ -21,29 +21,29 @@ class SilverDataProcessor:
     def process_yahoo_finance_file(self, bronze_file_path: str) -> pd.DataFrame:
         """
         Transform one Bronze Yahoo Finance file into clean Silver format
+        
+        Args:
+            bronze_file_path: Path to bronze CSV file
+            
+        Returns:
+            Clean DataFrame with standardized schema and metadata
         """
         # Read Bronze file, skip the messy header rows
         raw_data = pd.read_csv(bronze_file_path, skiprows=2)
         
-        # Assign proper column names (based on Yahoo Finance standard order)
+        # Assign proper column names
         raw_data.columns = ['date', 'close', 'high', 'low', 'open', 'volume']
-        print("After fixing column names:")
-        print(raw_data.head())
         
-        # Extract symbol from filename (AAPL from "AAPL_2025-07-20...")
+        # Extract symbol from filename
         filename = os.path.basename(bronze_file_path)
         symbol = filename.split('_')[0]
-        print(f"Extracted symbol: {symbol}")
         
         # Add metadata columns
         raw_data['symbol'] = symbol
         raw_data['source'] = 'yahoo_finance'
         raw_data['ingestion_timestamp'] = datetime.now()
-       
-        print("After adding metadata:")
-        print(raw_data.head())
         
-        return raw_data # Return after all Processing
+        return raw_data
     
     def process_all_bronze_files(self) -> List[str]:
         """Process all Bronze Yahoo Finance files to Silver layer"""
