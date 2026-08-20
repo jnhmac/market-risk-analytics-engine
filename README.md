@@ -4,6 +4,8 @@ A medallion-architecture data pipeline on Databricks that ingests 53 years of da
 
 Built as a data engineering project. Bronze, Silver, and Gold layers are implemented and populated, and daily ingestion runs as a scheduled job. Not investment advice.
 
+![Databricks job graph showing three serverless tasks running in sequence: bronze_ingest, then silver_transform, then gold_analytics](docs/images/pipeline-dag.png)
+
 ---
 
 ## Pipeline
@@ -24,7 +26,11 @@ Alpha Vantage (daily increments)    yfinance (historical backfill)
 
 Each layer writes a persistent table, so any notebook can be re-run independently without re-running the one before it.
 
-Historical backfill was a one-time load. Ongoing ingestion runs as a scheduled Databricks job on serverless compute, executing `bronze/01_Bronze_Daily_Updates` once per day after US market close.
+Historical backfill was a one-time load. Ongoing updates run as a scheduled Databricks job, `mrae-daily-pipeline`, which fires once per day after US market close on serverless compute and chains the three layers as dependent tasks. Each task runs only if the previous one succeeded, concurrent runs are capped at one so a slow run cannot overlap the next day's, and failures send an email alert.
+
+![Databricks run history showing about twenty consecutive successful daily runs between late July and mid August, each between five and twelve minutes](docs/images/run-history.png)
+
+Run history above covers daily Bronze ingestion. The chained Silver and Gold tasks were added later, so runs before that date executed ingestion only.
 
 ## Data
 
@@ -121,7 +127,6 @@ python -m src.data.market_data_extractor
 - No automated tests. Data quality checks are inline in the Silver notebook rather than in a test suite.
 - The `src/` implementation has drifted from the notebooks and is not kept in sync.
 - Dashboard views are defined in Gold but the dashboard itself lives in Databricks and is not exported here.
-- Silver and Gold are run manually. Only Bronze ingestion is scheduled, so analytics tables lag the raw data until the downstream notebooks are re-run.
 - Compute is serverless throughout. No classic job clusters, so cluster sizing and tuning are not part of this project.
 - Ingestion is scheduled with a Databricks job rather than expressed as a declarative pipeline.
 
