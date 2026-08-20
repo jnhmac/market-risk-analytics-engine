@@ -2,7 +2,7 @@
 
 A medallion-architecture data pipeline on Databricks that ingests 53 years of daily market data for a 15-stock AI portfolio and produces portfolio risk analytics: Value at Risk, stress-period performance, rolling volatility, drawdown, correlation structure, and market sensitivity.
 
-Built as a data engineering project. Bronze, Silver, and Gold layers are implemented and populated. Not investment advice.
+Built as a data engineering project. Bronze, Silver, and Gold layers are implemented and populated, and daily ingestion runs as a scheduled job. Not investment advice.
 
 ---
 
@@ -23,6 +23,8 @@ Alpha Vantage (daily increments)    yfinance (historical backfill)
 ```
 
 Each layer writes a persistent table, so any notebook can be re-run independently without re-running the one before it.
+
+Historical backfill was a one-time load. Ongoing ingestion runs as a scheduled Databricks job on serverless compute, executing `bronze/01_Bronze_Daily_Updates` once per day after US market close.
 
 ## Data
 
@@ -119,7 +121,9 @@ python -m src.data.market_data_extractor
 - No automated tests. Data quality checks are inline in the Silver notebook rather than in a test suite.
 - The `src/` implementation has drifted from the notebooks and is not kept in sync.
 - Dashboard views are defined in Gold but the dashboard itself lives in Databricks and is not exported here.
-- Free Edition constraints shape the design: no job clusters, no Unity Catalog, no Delta Live Tables.
+- Silver and Gold are run manually. Only Bronze ingestion is scheduled, so analytics tables lag the raw data until the downstream notebooks are re-run.
+- Compute is serverless throughout. No classic job clusters, so cluster sizing and tuning are not part of this project.
+- Ingestion is scheduled with a Databricks job rather than expressed as a declarative pipeline.
 
 ## A note on credentials
 
